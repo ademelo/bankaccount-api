@@ -1,8 +1,10 @@
+use std::sync::Mutex;
 use datetime::Instant;
+use lazy_static::lazy_static;
 use uuid::Uuid;
 use domain::model::account::Account;
 use domain::model::client::Client;
-use crate::app_context::AppState;
+//use crate::app_context::AppState;
 use crate::domain::api::banking_service::ExecuteOperation;
 use crate::domain::model::operation::{Operation, OperationDateTime};
 use crate::domain::banking_service_impl::BankingService;
@@ -14,13 +16,17 @@ mod app_context;
 //#[derive(Clone)]
 pub struct AppState {
     //db_pool: Pool<Postgres>,
-    banking_service: Box<dyn ExecuteOperation>,
+    banking_service: Box<dyn ExecuteOperation + Send>,
+}
+
+lazy_static! {
+    static ref STATE: Mutex<AppState> = Mutex::new(init_app_context());
 }
 
 fn main() {
     println!("Hello, world!");
 
-    let state = ini_app_context();
+    //let state = init_app_context();
 
     let mut account = Account {
         account_number: Uuid::new_v4(),
@@ -44,7 +50,9 @@ fn main() {
     };
 
     //let result1 = BankingService::execute(&mut account, operation1.clone());
-    let result1 = state.banking_service.execute(&mut account, operation1.clone());
+    //let execute_operation_service: dyn ExecuteOperation = BankingService{};
+    let result1 = STATE.lock().unwrap().banking_service.execute(&mut account, operation1.clone());
+        //execute_operation_service.execute(&mut account, operation1.clone());
 
     println!("Result for operation {} {} {:?} is {}",
         operation1.label,
@@ -53,7 +61,8 @@ fn main() {
         result1
     );
 
-    let result2 = BankingService::execute(&mut account, operation2.clone());
+    //let result2 = BankingService::execute(&mut account, operation2.clone());
+    let result2 = STATE.lock().unwrap().banking_service.execute(&mut account, operation2.clone());
 
     println!("Result for operation {} {} {:?} is {}",
              operation2.label,
@@ -70,7 +79,7 @@ fn main() {
 }
 
 
-fn ini_app_context() -> AppState {
+fn init_app_context() -> AppState {
     let bank_svc = BankingService;
     AppState {
         banking_service: Box::new(bank_svc)
