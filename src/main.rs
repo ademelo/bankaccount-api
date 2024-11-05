@@ -4,24 +4,17 @@ use lazy_static::lazy_static;
 use uuid::Uuid;
 use domain::model::account::Account;
 use domain::model::client::Client;
-//use crate::app_context::AppState;
+use crate::app_context::STATE;
 use crate::domain::api::banking_service::ExecuteOperation;
 use crate::domain::model::operation::{Operation, OperationDateTime};
-use crate::domain::banking_service_impl::BankingService;
+
 
 mod domain;
 mod app_context;
 
 
 //#[derive(Clone)]
-pub struct AppState {
-    //db_pool: Pool<Postgres>,
-    banking_service: Box<dyn ExecuteOperation + Send>,
-}
 
-lazy_static! {
-    static ref STATE: Mutex<AppState> = Mutex::new(init_app_context());
-}
 
 fn main() {
     println!("Hello, world!");
@@ -78,10 +71,3 @@ fn main() {
     );
 }
 
-
-fn init_app_context() -> AppState {
-    let bank_svc = BankingService;
-    AppState {
-        banking_service: Box::new(bank_svc)
-    }
-}
