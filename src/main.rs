@@ -43,6 +43,8 @@ fn main() {
     let result1 = STATE.lock().unwrap().banking_service.execute(&mut account, operation1.clone());
         //execute_operation_service.execute(&mut account, operation1.clone());
 
+    STATE.lock().unwrap().db_repository.record_email_address("alex@gmail.com".to_string());
+
     println!("Result for operation {} {} {:?} is {}",
         operation1.label,
         operation1.amount,

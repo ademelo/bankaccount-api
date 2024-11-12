@@ -15,7 +15,10 @@ impl DBRepository {
 }
 
 impl UseRepository for DBRepository {
-    fn record_email_address(&self, email: String) -> bool {
-        todo!()
+    fn record_email_address(&mut self, email: String) -> bool {
+        let id = Uuid::new_v4();
+        self.db.insert(id, email);
+        println!("record id is {} email: {:?}", id, self.db.get(&id));
+        true
     }
 }
