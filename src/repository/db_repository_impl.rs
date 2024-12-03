@@ -3,12 +3,12 @@ use uuid::Uuid;
 use crate::domain::spi::db_repository::UseRepository;
 
 pub struct DBRepository {
-    db: HashMap<Uuid, String>
+    db: HashMap<Uuid, String>,
 }
 
 impl DBRepository {
     pub fn new() -> DBRepository {
-        Self{
+        Self {
             db: HashMap::new(),
         }
     }
@@ -20,5 +20,10 @@ impl UseRepository for DBRepository {
         self.db.insert(id, email);
         println!("record id is {} email: {:?}", id, self.db.get(&id));
         true
+    }
+
+    fn find_email_address(&mut self, email: String) -> bool {
+        self.db.iter()
+            .any(|(uuid, recorded_email)| *recorded_email == email)
     }
 }

@@ -15,6 +15,8 @@ mod repository;
 fn main() {
     println!("Hello, world!");
 
+    let mut context = STATE.lock().unwrap();
+
     //let state = init_app_context();
 
     let mut account = Account {
@@ -40,10 +42,13 @@ fn main() {
 
     //let result1 = BankingService::execute(&mut account, operation1.clone());
     //let execute_operation_service: dyn ExecuteOperation = BankingService{};
-    let result1 = STATE.lock().unwrap().banking_service.execute(&mut account, operation1.clone());
+    let result1 = context.banking_service.execute(&mut account, operation1.clone());
         //execute_operation_service.execute(&mut account, operation1.clone());
 
-    STATE.lock().unwrap().db_repository.record_email_address("alex@gmail.com".to_string());
+    let result = context.db_repository.record_email_address("alex@gmail.com".to_string());
+    let found = context.db_repository.find_email_address("alex@gmail.com".to_string());
+
+    println!("Found email address? {}", found);
 
     println!("Result for operation {} {} {:?} is {}",
         operation1.label,
@@ -53,7 +58,7 @@ fn main() {
     );
 
     //let result2 = BankingService::execute(&mut account, operation2.clone());
-    let result2 = STATE.lock().unwrap().banking_service.execute(&mut account, operation2.clone());
+    let result2 = context.banking_service.execute(&mut account, operation2.clone());
 
     println!("Result for operation {} {} {:?} is {}",
              operation2.label,
@@ -67,5 +72,7 @@ fn main() {
         account.account_number,
         account.owner.lastname
     );
+
+    drop(context);
 }
 
