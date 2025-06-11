@@ -8,16 +8,19 @@ pub struct Account {
     pub owner: Client
 }
 
-pub trait CanExecuteOperation {
-    fn is_operation_possible(&self, operation: Operation) -> bool;
-}
 
-impl CanExecuteOperation for Account {
-    fn is_operation_possible(&self, operation: Operation) -> bool {
-        self.account_position + operation.amount >= 0.0
+impl Account {
+    pub(crate) fn execute(&mut self, operation: Operation) -> bool {
+        if self.is_operation_possible(& operation.amount) {
+            self.account_position += operation.amount;
+            return true;
+        }
+        false
+    }
+    fn is_operation_possible(&self, operation_amount: &f32) -> bool {
+        self.account_position + operation_amount >= 0.0
     }
 }
-
 
 #[cfg(test)]
 mod tests {
